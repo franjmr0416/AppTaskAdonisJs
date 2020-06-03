@@ -1,0 +1,71 @@
+<html>
+<head>
+    <title>BinnAdonis</title>
+    <link rel="shortcut icon" href="https://img.icons8.com/cotton/64/000000/task-planning.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+</head>
+<body>
+    
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="/home">
+        <img src="https://img.icons8.com/cotton/64/000000/task-planning.png" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
+        BinnAdonis
+        </a>
+    </nav>
+    <div class="container">
+        
+        <div class="mt-2 mx-auto" style="width: 300px;">
+            <div class="form-group">
+                <label for="">Email</label>
+                <input type="email" class="form-control" id="id_correo" aria-describedby="emailHelp">
+                <small id="emailHelp" class="form-text text-muted">Ingresa tu correo para crear tu cuenta.</small>
+                </div>
+                <div class="form-group">
+                <label for="">Contraseña</label>
+                <input type="password" class="form-control" id="id_clave">
+                </div>
+                <div class="text-center">
+                    <button onclick="registrar()" class="btn btn-primary">Registrarse</button>
+                </div>
+        </div>
+          
+    </div>
+
+<script>
+    function registrar(){
+    var email = document.getElementById("id_correo").value;
+    var clave = document.getElementById("id_clave").value;
+    console.log(email +" "+ clave)
+
+    var formdata = new FormData();
+    formdata.append("email", email);
+    formdata.append("password", clave);
+
+    var requestOptions = {
+    method: 'POST',
+    body: formdata,
+    redirect: 'follow'
+    };
+
+    fetch("http://localhost:3333/api/v1/users/register", requestOptions)
+    .then(response => response.json())
+    .then(result => {
+        
+        sessionStorage.setItem('token',result.token);
+        redirige()
+        
+    })
+    .catch(error => console.log('error', error));
+    }
+    
+    function redirige(){
+        window.location.href="http://localhost:3333/apptask/login";
+
+      }
+      
+</script>
+
+</body>
+</html>

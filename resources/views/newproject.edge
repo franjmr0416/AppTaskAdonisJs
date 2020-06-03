@@ -1,0 +1,66 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>BinnAdonis</title>
+    <link rel="shortcut icon" href="https://img.icons8.com/cotton/64/000000/task-planning.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="http://localhost:3333/apptask/home">
+        <img src="https://img.icons8.com/cotton/64/000000/task-planning.png" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
+        BinnAdonis
+        </a>
+        <button class="btn btn-outline-primary my-2 my-sm-0" onclick="logout()">Logout</button>
+    </nav>
+    <div class="container mt-2" style="width: 300px;">
+        <div class="form-group">
+            <h3><span class="badge badge-primary">Nuevo Proyecto</span></h3>
+            <input type="text" class="form-control" id="in_proyecto" placeholder="Ingresa el nombre de tu proyecto">
+          </div>
+          <div class="text-center">
+              <button onclick="newProject()" class="btn btn-outline-secondary">Crear Proyecto</button>
+          </div>
+    </div>
+    <button class="btn btn-outline-secondary mt-2 ml-4" onclick="regresar()">Mis proyectos</button>
+<script>
+    function logout(){
+        sessionStorage.removeItem('token');
+        window.location.href="http://localhost:3333/apptask/login";
+    }
+
+    function newProject(){
+        var project = document.getElementById("in_proyecto").value;
+        var token = sessionStorage.getItem('token');
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer "+token);
+
+        var formdata = new FormData();
+        formdata.append("nombre", project);
+
+        var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: formdata,
+        redirect: 'follow'
+        };
+
+        fetch("http://localhost:3333/api/v1/proyectos", requestOptions)
+        .then(response => response.text())
+        .then(result => {
+            console.log(result)
+            regresar();
+        })
+        .catch(error => console.log('error', error));
+    }
+
+    function regresar(){
+        window.location.href="http://localhost:3333/apptask/home";
+
+    }
+</script>
+</body>
+</html>

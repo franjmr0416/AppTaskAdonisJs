@@ -21,6 +21,12 @@ Route.get('apptask/login', ({ view }) => {
 });
 Route.get('apptask/home', ({ view }) => {
   return view.render('home')
+});
+Route.get('apptask/registro', ({ view }) => {
+  return view.render('registro')
+})
+Route.get('apptask/newProject', ({ view }) => {
+  return view.render('newproject')
 })
 
 Route.group(()=>{

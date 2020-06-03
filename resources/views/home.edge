@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>AppTask AdonisJs</title>
+    <title>BinnAdonis</title>
     <link rel="shortcut icon" href="https://img.icons8.com/cotton/64/000000/task-planning.png" type="image/x-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -12,7 +12,7 @@
     <nav class="navbar navbar-light bg-light">
         <a class="navbar-brand" href="http://localhost:3333/apptask/home">
         <img src="https://img.icons8.com/cotton/64/000000/task-planning.png" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
-        AppTask AdonisJs
+        BinnAdonis
         </a>
         <button class="btn btn-outline-primary my-2 my-sm-0" onclick="logout()">Logout</button>
     </nav>
@@ -72,16 +72,22 @@
                 '<th scope="row">'+ data[i].nombre +'</th>'+
                 '<td>'+ data[i].created_at +'</td>'+
                 '<td>'+ data[i].updated_at +'</td>'+
-                '<td><button class="btn btn-outline-secondary" onclick="showTasks('+data[i].id+')">Ver</button></td>'+
+                '<td><button class="btn btn-outline-secondary" onclick="showTasks('+data[i].id+')">Ver</button>'+
+                '<button class="btn btn-outline-secondary ml-2" onclick="addTask('+data[i].id+')">Nueva</button></td>'+
                 '</tr>';
             }
             
             contenedor.innerHTML += '</tbody>'+'</table>';
+            contenedor.innerHTML +='<button type="button" onclick="redirigeNewProj()" class="btn btn-outline-secondary mt-2">Nuevo Proyecto</button>';
         }
 
         
         traeDatos(token);
         
+        function redirigeNewProj(){
+            window.location.href="http://localhost:3333/apptask/newProject";
+        }
+
         function logout(){
             sessionStorage.removeItem('token');
             window.location.href="http://localhost:3333/apptask/login";
@@ -142,10 +148,11 @@
                 '<td>'+ arrayTasks[j].updated_at +'</td>'+
                 '<td>'+ estado +'</td>'+
                 '</tr>';
-                
+
                 }
                 iniTabla.innerHTML += '</tbody>'+'</table>';
                 iniTabla.innerHTML +='<button onclick="regresar()" type="button" class="btn btn-outline-secondary mt-2">Proyectos</button>';
+                
             }else{
                 box.innerHTML +='<div class="alert alert-warning" role="alert">'+
                                         'Este proyecto no cuenta con tareas!'+
@@ -163,6 +170,37 @@
         function regresar(){
             window.location.href="http://localhost:3333/apptask/home";
 
+        }
+
+        function addTask(id){
+            var inTarea = prompt("Ingresa el nombre de tu tarea", "Nombre de tarea");
+
+            if (inTarea == null || inTarea == "") {
+            txt = "Tarea cancelada.";
+            } else {
+            txt = inTarea + " Se agrego a tu proyecto";
+            createTask(id,inTarea);
+            }
+        }
+        function createTask(id,inTarea){
+            let token = sessionStorage.getItem('token');
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer "+token);
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({"descripcion":inTarea});
+
+            var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+            };
+
+            fetch('http://localhost:3333/api/v1/proyectos/'+id+'/tareas', requestOptions)
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.log('error', error));
         }
     </script>
 </body>
