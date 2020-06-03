@@ -1,0 +1,170 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>AppTask AdonisJs</title>
+    <link rel="shortcut icon" href="https://img.icons8.com/cotton/64/000000/task-planning.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="http://localhost:3333/apptask/home">
+        <img src="https://img.icons8.com/cotton/64/000000/task-planning.png" width="30" height="30" class="d-inline-block align-top" alt="" loading="lazy">
+        AppTask AdonisJs
+        </a>
+        <button class="btn btn-outline-primary my-2 my-sm-0" onclick="logout()">Logout</button>
+    </nav>
+    <div class="container mt-2" id="box">
+        <h3><span class="badge badge-primary">Tus Proyectos</span></h3>
+        <table class="table mt-2">
+            <thead class="thead-light">
+                <tr>
+                <th scope="col">Proyecto</th>
+                <th scope="col">Creado</th>
+                <th scope="col">Modificado</th>
+                <th scope="col">Tareas</th>
+                </tr>
+            </thead>
+            <tbody id="contenedor">
+                
+    </div>
+
+    <script>
+        var token = sessionStorage.getItem('token');
+        var noS= sessionStorage.length;
+        console.log('token: '+token);
+        console.log(noS);
+
+        function traeDatos(token){
+            var contenedor = document.querySelector('#contenedor');
+            /*token ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjIsImlhdCI6MTU5MTEyNTgzN30.04R0r1kxqgCOJPn1hl3vK-11fj7U87Fiaa8eZkGG1o0';*/
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer "+ token);
+
+
+            var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+            };
+
+            fetch("http://localhost:3333/api/v1/proyectos", requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                
+               tabla(data);
+                
+            })
+            .catch(error => console.log('error', error));
+        }
+        
+        function tabla(data){
+            var longitud = data.length;
+            
+            console.log(data);
+            contenedor.innerHTML = '';
+             
+            for(let i =0; i<longitud; i++){
+                contenedor.innerHTML += 
+                '<tr>'+
+                '<th scope="row">'+ data[i].nombre +'</th>'+
+                '<td>'+ data[i].created_at +'</td>'+
+                '<td>'+ data[i].updated_at +'</td>'+
+                '<td><button class="btn btn-outline-secondary" onclick="showTasks('+data[i].id+')">Ver</button></td>'+
+                '</tr>';
+            }
+            
+            contenedor.innerHTML += '</tbody>'+'</table>';
+        }
+
+        
+        traeDatos(token);
+        
+        function logout(){
+            sessionStorage.removeItem('token');
+            window.location.href="http://localhost:3333/apptask/login";
+
+        }
+
+        function showTasks(id){
+            console.log(id);
+            let token = sessionStorage.getItem('token');
+            var myHeaders = new Headers();
+            myHeaders.append("Authorization", "Bearer "+ token);
+
+            var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+            };
+
+            fetch('http://localhost:3333/api/v1/proyectos/'+id+'/tareas', requestOptions)
+            .then(response => response.json())
+            .then(arrayTasks => {
+                
+                tableTasks(arrayTasks);
+            })
+            .catch(error => console.log('error', error));
+        }
+
+        function tableTasks(arrayTasks){
+            console.log(arrayTasks);
+            var box = document.querySelector('#box');
+            let cantidad = arrayTasks.length;
+            box.innerHTML='<h3><span class="badge badge-primary">Tus Tareas</span></h3>'+
+                            '<table class="table mt-2">'+
+                                '<thead class="thead-light">'+
+                                    '<tr>'+
+                                    '<th scope="col">Tarea</th>'+
+                                    '<th scope="col">Creada</th>'+
+                                    '<th scope="col">Modificada</th>'+
+                                    '<th scope="col">Estatus</th>'+
+                                    '</tr>'+
+                                '</thead>'+
+                                '<tbody id="iniTabla">';
+            var iniTabla = document.querySelector('#iniTabla');
+            var estado = 'En Proceso';
+            if(cantidad>0){
+                for(let j=0; j<cantidad; j++){
+                console.log(arrayTasks[j].completada)
+                if(arrayTasks[j].completada == '1' || arrayTasks[j].completada == 'true'){
+                    estado = 'Completada';
+                }else{
+                    estado = 'En Proceso';
+                }
+
+                iniTabla.innerHTML += 
+                '<tr>'+
+                '<th scope="row">'+ arrayTasks[j].descripcion +'</th>'+
+                '<td>'+ arrayTasks[j].created_at +'</td>'+
+                '<td>'+ arrayTasks[j].updated_at +'</td>'+
+                '<td>'+ estado +'</td>'+
+                '</tr>';
+                
+                }
+                iniTabla.innerHTML += '</tbody>'+'</table>';
+                iniTabla.innerHTML +='<button onclick="regresar()" type="button" class="btn btn-outline-secondary mt-2">Proyectos</button>';
+            }else{
+                box.innerHTML +='<div class="alert alert-warning" role="alert">'+
+                                        'Este proyecto no cuenta con tareas!'+
+                                        '</div>';
+                box.innerHTML +='<div class="container text-center">'+
+                                        '<img class="mx-auto" src="https://img.icons8.com/color/200/000000/sad-ghost.png"/>'+
+                                        '</div>';
+                box.innerHTML +='<button onclick="regresar()" type="button" class="btn btn-outline-secondary mt-2">Proyectos</button>';
+            }
+            
+            
+            
+
+        }
+        function regresar(){
+            window.location.href="http://localhost:3333/apptask/home";
+
+        }
+    </script>
+</body>
+</html>
+
